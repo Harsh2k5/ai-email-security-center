@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Threat Intelligence Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-light: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --danger-color: #dc2626;
+            --success-color: #16a34a;
+            --warning-color: #d97706;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --radius: 0.5rem;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--gray-100);
+            color: var(--gray-800);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        header {
+            background-color: white;
+            box-shadow: var(--shadow);
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-right: 1rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 0.5rem;
+        }
+
+        h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 1rem;
+        }
+
+        h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 0.75rem;
+        }
+
+        p {
+            color: var(--gray-600);
+            margin-bottom: 1rem;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-icon {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+        }
+
+        .input-group {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+
+        input,
+        textarea {
+            padding: 0.75rem;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            width: 100%;
+            transition: border-color 0.15s ease-in-out;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.625rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: var(--radius);
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.15s ease-in-out;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-icon {
+            margin-right: 0.5rem;
+        }
+
+        .btn-secondary {
+            background-color: white;
+            color: var(--gray-700);
+            border: 1px solid var(--gray-300);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--gray-50);
+        }
+
+        .loading {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: var(--primary-color);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin-right: 0.75rem;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.875rem;
+        }
+
+        th,
+        td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        th {
+            font-weight: 600;
+            color: var(--gray-700);
+            background-color: var(--gray-50);
+        }
+
+        tbody tr:hover {
+            background-color: var(--gray-50);
+        }
+
+        .status-safe {
+            color: var(--success-color);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+
+        .status-safe::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--success-color);
+            margin-right: 6px;
+        }
+
+        .status-malicious {
+            color: var(--danger-color);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+
+        .status-malicious::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--danger-color);
+            margin-right: 6px;
+        }
+
+        .status-unknown {
+            color: var(--warning-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .status-unknown::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--warning-color);
+            margin-right: 6px;
+        }
+
+        .results-container {
+            border-radius: var(--radius);
+            background-color: white;
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tab-container {
+            margin-top: 1rem;
+        }
+
+        .tab-buttons {
+            display: flex;
+            border-bottom: 1px solid var(--gray-200);
+            margin-bottom: 1rem;
+        }
+
+        .tab-button {
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            position: relative;
+            color: var(--gray-600);
+        }
+
+        .tab-button.active {
+            color: var(--primary-color);
+        }
+
+        .tab-button.active::after {
+            content: "";
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 1rem 0;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background-color: var(--gray-50);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-title {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .stat-card.risk-high {
+            border-left: 4px solid var(--danger-color);
+        }
+
+        .stat-card.risk-medium {
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .stat-card.risk-low {
+            border-left: 4px solid var(--success-color);
+        }
+
+        pre {
+            background-color: var(--gray-50);
+            padding: 1rem;
+            border-radius: var(--radius);
+            overflow-x: auto;
+            font-family: "SF Mono", "Monaco", "Inconsolata", "Fira Mono", "Droid Sans Mono", "Source Code Pro", monospace;
+            font-size: 0.875rem;
+            color: var(--gray-800);
+            max-height: 500px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <h1>Threat Intelligence Dashboard</h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-server"></i>
+                </div>
+                <h2>Bulk URL Scan</h2>
+            </div>
+            <p>Run a scan on pre-configured malicious URLs from URLHaus.</p>
+            <button class="btn" onclick="scanNow()">
+                <i class="fas fa-play btn-icon"></i>
+                Run Full Scan
+            </button>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-link"></i>
+                </div>
+                <h2>Manual URL Scan</h2>
+            </div>
+            <p>Check a specific URL for security threats.</p>
+            <div class="input-group">
+                <input type="text" id="urlInput" placeholder="Enter URL (e.g., https://example.com)">
+                <button class="btn" style="margin-left: 0.5rem; white-space: nowrap;" onclick="manualScan()">
+                    <i class="fas fa-search btn-icon"></i>
+                    Scan URL
+                </button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h2>Email Spam Detection (AI)</h2>
+            </div>
+            <p>Paste email content below to check if it's spam using our AI model.</p>
+            <textarea id="emailInput" rows="6" style="width: 100%; margin-bottom: 1rem;"
+                placeholder="Paste email text here..."></textarea>
+            <button class="btn" onclick="checkSpam()">
+                <i class="fas fa-check-circle btn-icon"></i>
+                Check for Spam
+            </button>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <h2>Raw Email Analysis</h2>
+            </div>
+            <p>Paste a complete raw email including headers for comprehensive analysis.</p>
+            <textarea id="rawEmailInput" rows="8" style="width: 100%; margin-bottom: 1rem;"
+                placeholder="Paste raw email here..."></textarea>
+            <button class="btn" onclick="analyzeRawEmail()">
+                <i class="fas fa-microscope btn-icon"></i>
+                Analyze Email
+            </button>
+        </div>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Scanning in progress... This may take a moment.</p>
+        </div>
+
+        <div class="results-container">
+            <h2>Scan Results</h2>
+            <div id="results"></div>
+        </div>
+    </div>
+
+    <script>
+        function scanNow() {
+            document.getElementById('loading').style.display = 'flex';
+            document.getElementById('results').innerHTML = '';
+
+            fetch('/scan', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('loading').style.display = 'none';
+                    displayResults(data);
+                })
+                .catch(error => {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('results').innerHTML = `
+                        <div style="padding: 1rem; background-color: #fee2e2; color: #b91c1c; border-radius: 0.5rem;">
+                            <strong>Error:</strong> ${error}
+                        </div>
+                    `;
+                });
+        }
+
+        function manualScan() {
+            const url = document.getElementById('urlInput').value;
+            if (!url) {
+                alert('Please enter a URL');
+                return;
+            }
+
+            document.getElementById('loading').style.display = 'flex';
+            document.getElementById('results').innerHTML = '';
+
+            fetch('/manual_scan', {
+                method: 'POST',
+                body: new URLSearchParams({ "url": url }),
+                headers: { "Content-Type": "application/x-www-form-urlencoded" }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('loading').style.display = 'none';
+                    displayResults(data);
+                })
+                .catch(error => {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('results').innerHTML = `
+                    <div style="padding: 1rem; background-color: #fee2e2; color: #b91c1c; border-radius: 0.5rem;">
+                        <strong>Error:</strong> ${error}
+                    </div>
+                `;
+                });
+        }
+
+        function displayResults(data) {
+            if (data.error) {
+                document.getElementById('results').innerHTML = `
+                    <div style="padding: 1rem; background-color: #fee2e2; color: #b91c1c; border-radius: 0.5rem;">
+                        <strong>Error:</strong> ${data.error}
+                    </div>
+                `;
+                return;
+            }
+
+            if (Array.isArray(data)) {
+                // Format array results
+                let html = '<div style="overflow-x:auto;"><table>';
+                html += '<thead><tr><th>URL</th><th>Domain</th><th>Safe Browsing</th><th>VirusTotal</th><th>URLhaus</th><th>AbuseIPDB</th><th>SPF</th><th>DKIM</th><th>DMARC</th></tr></thead>';
+                html += '<tbody>';
+
+                data.forEach(item => {
+                    html += `<tr>
+                        <td>${item.URL}</td>
+                        <td>${item.Domain}</td>
+                        <td>${formatStatus(item['Google Safe Browsing'])}</td>
+                        <td>${formatStatus(item.VirusTotal)}</td>
+                        <td>${formatStatus(item.URLhaus)}</td>
+                        <td>${formatStatus(item.AbuseIPDB)}</td>
+                        <td>${item.SPF}</td>
+                        <td>${item.DKIM}</td>
+                        <td>${item.DMARC}</td>
+                    </tr>`;
+                });
+
+                html += '</tbody></table></div>';
+                document.getElementById('results').innerHTML = html;
+            } else {
+                // Format single result or message
+                document.getElementById('results').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            }
+        }
+
+        function formatStatus(status) {
+            if (!status) return 'N/A';
+
+            if (status === 'SAFE' || status.includes('SAFE')) {
+                return `<span class="status-safe">${status}</span>`;
+            } else if (status === 'MALICIOUS' || status.includes('MALICIOUS')) {
+                return `<span class="status-malicious">${status}</span>`;
+            } else {
+                return `<span class="status-unknown">${status}</span>`;
+            }
+        }
+
+        function checkSpam() {
+            const emailText = document.getElementById('emailInput').value;
+            if (!emailText) {
+                alert('Please paste email content');
+                return;
+            }
+
+            document.getElementById('loading').style.display = 'flex';
+            document.getElementById('results').innerHTML = '';
+
+            fetch('/check_spam', {
+                method: 'POST',
+                body: JSON.stringify({ email: emailText }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('loading').style.display = 'none';
+                    displaySpamResult(data);
+                })
+                .catch(error => {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('results').innerHTML = `
+                    <div style="padding: 1rem; background-color: #fee2e2; color: #b91c1c; border-radius: 0.5rem;">
+                        <strong>Error:</strong> ${error}
+                    </div>
+                `;
+                });
+        }
+
+        function displaySpamResult(data) {
+            if (data.error) {
+                document.getElementById('results').innerHTML = `
+                    <div style="padding: 1rem; background-color: #fee2e2; color: #b91c1c; border-radius: 0.5rem;">
+                        <strong>Error:</strong> ${data.error}
+                    </div>
+                `;
+                return;
+            }
+
+            const isSpam = data.prediction === 1;
+            const resultClass = isSpam ? 'risk-high' : 'risk-low';
+            const resultText = isSpam ? "Spam Detected" : "Clean Email (Not Spam)";
+            const resultIcon = isSpam ? "exclamation-triangle" : "check-circle";
+            const resultColor = isSpam ? "#dc2626" : "#16a34a";
+
+            let html = `
+                <div class="summary-stats">
+                    <div class="stat-card ${resultClass}">
+                        <div class="stat-title">Classification Result</div>
+                        <div class="stat-value" style="color: ${resultColor};">
+                            <i class="fas fa-${resultIcon}" style="margin-right: 8px;"></i>
+                            ${resultText}
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">Confidence Level</div>
+                        <div class="stat-value">${(data.confidence * 100).toFixed(2)}%</div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('results').innerHTML = html;
+        }
+
+        function analyzeRawEmail() {
+            const rawEmail = document.getElementById('rawEmailInput').value;
+            if (!rawEmail) {
+                alert('Please paste a raw email');
+                return;
+            }
+
+            document.getElementById('loading').style.display = 'flex';
+            document.getElementById('results').innerHTML = '';
+
+            fetch('/analyze_email', {
+                method: 'POST',
+                body: JSON.stringify({ email: rawEmail }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('loading').style.display = 'none';
+                    displayEmailAnalysisResults(data);
+                })
+                .catch(error => {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('results').innerHTML = `
+                    <div style="padding: 1rem; background-color: #fee2e2; color: #b91c1c; border-radius: 0.5rem;">
+                        <strong>Error:</strong> ${error}
+                    </div>
+                `;
+                });
+        }
+
+        function displayEmailAnalysisResults(data) {
+            if (data.error) {
+                document.getElementById('results').innerHTML = `
+                    <div style="padding: 1rem; background-color: #fee2e2; color: #b91c1c; border-radius: 0.5rem;">
+                        <strong>Error:</strong> ${data.error}
+                    </div>
+                `;
+                return;
+            }
+
+            // Use verdict info from backend
+            let riskLevel = "Low";
+            let riskClass = "risk-low";
+            let riskIcon = "check-shield";
+            let riskColor = "#16a34a";
+
+            // Map threat level to risk display
+            if (data.verdict && data.verdict.threat_level) {
+                if (data.verdict.threat_level === "Malicious") {
+                    riskLevel = "High";
+                    riskClass = "risk-high";
+                    riskIcon = "exclamation-triangle";
+                    riskColor = "#dc2626";
+                } else if (data.verdict.threat_level === "Suspicious") {
+                    riskLevel = "Medium";
+                    riskClass = "risk-medium";
+                    riskIcon = "exclamation";
+                    riskColor = "#d97706";
+                }
+            }
+
+            // Create summary stats
+            let html = `
+                <div class="summary-stats">
+                    <div class="stat-card ${riskClass}">
+                        <div class="stat-title">Overall Risk Assessment</div>
+                        <div class="stat-value" style="color: ${riskColor};">
+                            <i class="fas fa-${riskIcon}" style="margin-right: 8px;"></i>
+                            ${riskLevel} Risk
+                        </div>`;
+
+            // Add verdict explanation if available
+            if (data.verdict && data.verdict.final_verdict) {
+                html += `
+                        <div style="margin-top: 8px; font-size: 0.875rem; color: var(--gray-600);">
+                            <strong>Verdict:</strong> ${data.verdict.final_verdict}
+                        </div>`;
+            }
+
+            html += `</div>`;
+
+            const spamClass = data.summary.text_classification === 'SPAM' ? 'risk-high' : 'risk-low';
+            const spamIcon = data.summary.text_classification === 'SPAM' ? 'times-circle' : 'check-circle';
+            const spamColor = data.summary.text_classification === 'SPAM' ? '#dc2626' : '#16a34a';
+
+            html += `
+                <div class="stat-card ${spamClass}">
+                    <div class="stat-title">Email Content Classification</div>
+                    <div class="stat-value" style="color: ${spamColor};">
+                        <i class="fas fa-${spamIcon}" style="margin-right: 8px;"></i>
+                        ${data.verdict ? data.verdict.ai_result : data.summary.text_classification}
+                    </div>
+                    <div style="margin-top: 4px; font-size: 0.875rem; color: var(--gray-500);">
+                        ${(data.summary.text_confidence * 100).toFixed(2)}% confidence
+                    </div>
+                </div>`;
+
+            const urlClass = data.summary.suspicious_urls > 0 ? 'risk-high' : 'risk-low';
+            const urlIcon = data.summary.suspicious_urls > 0 ? 'exclamation-circle' : 'link';
+            const urlColor = data.summary.suspicious_urls > 0 ? '#dc2626' : '#16a34a';
+
+            html += `
+                <div class="stat-card ${urlClass}">
+                    <div class="stat-title">URLs Analysis</div>
+                    <div class="stat-value" style="color: ${urlColor};">
+                        <i class="fas fa-${urlIcon}" style="margin-right: 8px;"></i>
+                        ${data.summary.url_count} URLs
+                    </div>
+                    <div style="margin-top: 4px; font-size: 0.875rem; color: var(--gray-500);">
+                        ${data.summary.suspicious_urls} suspicious URLs detected
+                    </div>
+                </div>
+            </div>`;
+
+
+            if (data.auth_analysis && data.auth_analysis.domain) {
+                const authFailures = data.verdict ? data.verdict.auth_failures : 0;
+                const authClass = authFailures > 0 ? (authFailures > 1 ? 'risk-high' : 'risk-medium') : 'risk-low';
+                const authIcon = authFailures > 0 ? (authFailures > 1 ? 'times-circle' : 'exclamation-circle') : 'check-circle';
+                const authColor = authFailures > 0 ? (authFailures > 1 ? '#dc2626' : '#d97706') : '#16a34a';
+
+                html += `
+            <div class="stat-card ${authClass}">
+                <div class="stat-title">Email Authentication</div>
+                <div class="stat-value" style="color: ${authColor};">
+                    <i class="fas fa-${authIcon}" style="margin-right: 8px;"></i>
+                    ${authFailures === 0 ? 'Passed' : `${authFailures} Failures`}
+                </div>
+                <div style="margin-top: 4px; font-size: 0.875rem; color: var(--gray-500);">
+                    Domain: ${data.auth_analysis.domain}
+                </div>
+            </div>`;
+            }
+
+            html += '</div>';  // End of summary-stats
+
+
+            // Create tab container
+            html += '<div class="tab-container">';
+
+            // Tab buttons
+            html += '<div class="tab-buttons">';
+            html += '<div class="tab-button active" onclick="openTab(event, \'verdict-tab\')">Verdict</div>';
+            html += '<div class="tab-button" onclick="openTab(event, \'headers-tab\')">Headers</div>';
+            html += '<div class="tab-button" onclick="openTab(event, \'urls-tab\')">URLs</div>';
+            html += '</div>';
+
+            // Verdict tab content
+            html += '<div id="verdict-tab" class="tab-content active">';
+            html += '<h3>Email Security Assessment</h3>';
+
+            if (data.verdict) {
+                html += `
+                <div style="padding: 1rem; border-radius: var(--radius); margin-bottom: 1rem; 
+                            background-color: ${riskColor === '#dc2626' ? '#fee2e2' :
+                        (riskColor === '#d97706' ? '#fef3c7' : '#ecfdf5')}; 
+                            color: ${riskColor};">
+                    <h3 style="margin-bottom: 0.5rem; color: ${riskColor};">
+                        <i class="fas fa-${riskIcon}" style="margin-right: 8px;"></i>
+                        ${data.verdict.threat_level} Threat Level
+                    </h3>
+                    <p style="color: var(--gray-700); margin-bottom: 0.5rem;"><strong>AI Classification:</strong> ${data.verdict.ai_result}</p>
+                    <p style="color: var(--gray-700);"><strong>Final Verdict:</strong> ${data.verdict.final_verdict}</p>
+                </div>`;
+            } else {
+                html += '<p>No verdict information available.</p>';
+            }
+
+            html += '</div>';
+
+            // Headers tab content
+            html += '<div id="headers-tab" class="tab-content">';
+            html += '<h3>Email Headers</h3>';
+
+            if (Object.keys(data.headers_analysis).length > 0) {
+                html += '<div style="overflow-x:auto;"><table>';
+                html += '<thead><tr><th style="width: 30%;">Header</th><th>Value</th></tr></thead>';
+                html += '<tbody>';
+
+                for (const [header, value] of Object.entries(data.headers_analysis)) {
+                    html += `<tr><td><strong>${header}</strong></td><td>${value}</td></tr>`;
+                }
+
+                html += '</tbody></table></div>';
+            } else {
+                html += '<p>No headers found or extracted from this email.</p>';
+            }
+
+            html += '</div>';
+
+            // URLs tab content
+            html += '<div id="urls-tab" class="tab-content">';
+            html += '<h3>URL Analysis</h3>';
+
+            if (data.url_analysis && data.url_analysis.length > 0) {
+                html += '<div style="overflow-x:auto;"><table>';
+                html += '<thead><tr><th>URL</th><th>Domain</th><th>Safe Browsing</th><th>VirusTotal</th><th>URLhaus</th><th>AbuseIPDB</th><th>SPF</th><th>DKIM</th><th>DMARC</th></tr></thead>';
+                html += '<tbody>';
+
+                data.url_analysis.forEach(item => {
+                    html += `<tr>
+                        <td>${item.URL}</td>
+                        <td>${item.Domain || 'N/A'}</td>
+                        <td>${formatStatus(item['Google Safe Browsing'] || 'N/A')}</td>
+                        <td>${formatStatus(item.VirusTotal || 'N/A')}</td>
+                        <td>${formatStatus(item.URLhaus || 'N/A')}</td>
+                        <td>${formatStatus(item.AbuseIPDB || 'N/A')}</td>
+                        <td>${item.SPF || 'N/A'}</td>
+                        <td>${item.DKIM || 'N/A'}</td>
+                        <td>${item.DMARC || 'N/A'}</td>
+                    </tr>`;
+                });
+
+                html += '</tbody></table></div>';
+            } else {
+                html += '<p>No URLs found in this email.</p>';
+            }
+
+            html += '</div>';
+            html += '</div>';
+
+            document.getElementById('results').innerHTML = html;
+        }
+
+        function openTab(evt, tabName) {
+            // Get all tab content elements and hide them
+            const tabContents = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove("active");
+            }
+
+            // Get all tab buttons and remove the active class
+            const tabButtons = document.getElementsByClassName("tab-button");
+            for (let i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove("active");
+            }
+
+            // Show the current tab and add an "active" class to the button that opened the tab
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+    </script>
+</body>
+
+</html>

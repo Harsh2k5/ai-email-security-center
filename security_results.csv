@@ -1,0 +1,2 @@
+URL,Domain,Threat Type,Tags,Google Safe Browsing,VirusTotal,URLhaus,AbuseIPDB,SPF,DKIM,DMARC,Scan Time
+https://example.com,example.com,Manual Scan,Manual Scan,SAFE,SAFE,SAFE,SAFE,"✅ SPF Found: ""v=spf1 -all""","✅ DKIM Found: ""v=DKIM1; p=""","✅ DMARC Found: ""v=DMARC1;p=reject;sp=reject;adkim=s;aspf=s""",2025-04-10 15:19:30

@@ -1,0 +1,4 @@
+URL,Domain,Threat Type,Tags,Google Safe Browsing,VirusTotal,URLhaus,AbuseIPDB,SPF,DKIM,DMARC,Scan Time
+http://182.113.215.8:54720/bin.sh,182.113.215.8:54720,malware_download,"32-bit,elf,mips,Mozi",SAFE,SAFE,"MALICIOUS: malware_download (['32-bit', 'elf', 'mips', 'Mozi'])",SAFE,❌ No SPF Record,❌ No DKIM Record,❌ No DMARC Record,Not Available
+http://175.165.80.193:50968/bin.sh,175.165.80.193:50968,malware_download,"32-bit,elf,mips,Mozi",SAFE,SAFE,"MALICIOUS: malware_download (['32-bit', 'elf', 'mips', 'Mozi'])",SAFE,❌ No SPF Record,❌ No DKIM Record,❌ No DMARC Record,Not Available
+https://example.com,example.com,Manual Scan,Manual Scan,SAFE,SAFE,SAFE,SAFE,"✅ SPF Found: ""v=spf1 -all""","✅ DKIM Found: ""v=DKIM1; p=""","✅ DMARC Found: ""v=DMARC1;p=reject;sp=reject;adkim=s;aspf=s""",2025-04-10 15:19:30
